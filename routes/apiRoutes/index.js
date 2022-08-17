@@ -1,8 +1,6 @@
 // middleware function
 const router = require('express').Router();
-const { text } = require('express');
 const fs = require('fs');
-const { title } = require('process');
 const { v4: uuidv4 } = require('uuid');
 
 router.get('/notes', (req, res) => {
@@ -28,6 +26,22 @@ router.post('/notes', (req,res) => {
         });
     });
     res.json(newNote);
+});
+
+router.delete('/notes/:id', (req, res) => {
+    fs.readFile('./db/db.json', (err, data) => {
+        if(err) throw err;
+        const notes = JSON.parse(data);
+        const iD = (element) => element.id === req.params.id;
+        const idIndex = notes.findIndex(iD);
+        notes.splice(idIndex, 1);
+
+        fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
+            if (err) throw err;
+        });
+
+        res.json(notes);
+    });
 });
 
 module.exports = router;
